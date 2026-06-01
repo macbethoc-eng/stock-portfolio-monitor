@@ -24,6 +24,22 @@ const errorBanner = document.getElementById('error-banner');
 const errorMessage = document.getElementById('error-message');
 const staleWarning = document.getElementById('stale-warning');
 
+// Tab elements
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabPanels = document.querySelectorAll('.tab-panel');
+
+// News tab elements
+const newsLoading = document.getElementById('news-loading');
+const newsContent = document.getElementById('news-content');
+const newsEmpty = document.getElementById('news-empty');
+const refreshNewsBtn = document.getElementById('refresh-news-btn');
+
+// Opportunities tab elements
+const opportunitiesLoading = document.getElementById('opportunities-loading');
+const opportunitiesContent = document.getElementById('opportunities-content');
+const opportunitiesEmpty = document.getElementById('opportunities-empty');
+const refreshOpportunitiesBtn = document.getElementById('refresh-opportunities-btn');
+
 // Format helpers
 function formatCurrency(value) {
     const absValue = Math.abs(value);
@@ -39,10 +55,6 @@ function formatCurrency(value) {
 function formatPercent(value) {
     const sign = value >= 0 ? '+' : '';
     return `${sign}${value.toFixed(2)}%`;
-}
-
-function formatNumber(value, decimals = 2) {
-    return value.toFixed(decimals);
 }
 
 function formatTimestamp(isoString) {
@@ -202,6 +214,32 @@ async function getPrices() {
     }
 }
 
+async function fetchReport(type) {
+    try {
+        const response = await fetch(`${API_BASE}/api/reports/${type}`);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        throw new Error(`Failed to fetch ${type} report: ${error.message}`);
+    }
+}
+
+async function generateReport(type) {
+    try {
+        const response = await fetch(`${API_BASE}/api/reports/${type}/generate`, {
+            method: 'POST'
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        throw new Error(`Failed to generate ${type} report: ${error.message}`);
+    }
+}
+
 // Main load
 async function loadPortfolio() {
     closeErrorBanner();
@@ -251,8 +289,125 @@ async function handleRefresh() {
     }
 }
 
+// Report loading
+async function loadReport(type, loadingEl, contentEl, emptyEl, btnEl) {
+    loadingEl.style.display = 'block';
+    contentEl.style.display = 'none';
+    emptyEl.style.display = 'none';
+    btnEl.disabled = true;
+
+    try {
+        // First try to get existing report
+        const data = await fetchReport(type);
+        
+        if (data.report && data.report.length > 100) {
+            contentEl.innerHTML = markdownToHtml(data.report);
+            contentEl.style.display = 'block';
+        } else {
+            emptyEl.style.display = 'block';
+        }
+    } catch (error) {
+        showError(error.message);
+    } finally {
+        loadingEl.style.display = 'none';
+        btnEl.disabled = false;
+    }
+}
+
+async function handleRefreshReport(type, loadingEl, contentEl, emptyEl, btnEl) {
+    loadingEl.style.display = 'block';
+    contentEl.style.display = 'none';
+    emptyEl.style.display = 'none';
+    btnEl.disabled = true;
+
+    try {
+        const result = await generateReport(type);
+        if (result.report) {
+            contentEl.innerHTML = markdownToHtml(result.report);
+            contentEl.style.display = 'block';
+        }
+    } catch (error) {
+        showError(error.message);
+    } finally {
+        loadingEl.style.display = 'none';
+        btnEl.disabled = false;
+    }
+}
+
+// Simple markdown to HTML converter
+function markdownToHtml(text) {
+    if (!text) return '<p>No content available.</p>';
+    
+    // Escape HTML first
+    let html = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    
+    // Headers
+    html = html.replace(/^# (.*)$/gm, '<h1>$1</h1>');
+    html = html.replace(/^## (.*)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^### (.*)$/gm, '<h3>$1</h3>');
+    
+    // Bold
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Italic
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Lists
+    html = html.replace(/^- (.*)$/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+    
+    // Line breaks
+    html = html.replace(/\n\n/g, '</p><p>');
+    html = html.replace(/\n/g, '<br>');
+    
+    // Links
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+    
+    // Paragraphs
+    html = '<p>' + html + '</p>';
+    html = html.replace(/<p><(h[123]|ul|li)/g, '<$1');
+    html = html.replace(/<\/(h[123]|ul)><\/p>/g, '</$1>');
+    html = html.replace(/<p><\/p>/g, '');
+    
+    return html;
+}
+
+// Tab switching
+function switchTab(tabName) {
+    tabBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabName);
+    });
+    
+    tabPanels.forEach(panel => {
+        const panelId = panel.id.replace('tab-', 'tab-');
+        panel.style.display = panel.id === `tab-${tabName}` ? 'block' : 'none';
+    });
+    
+    // Load report if needed
+    if (tabName === 'news') {
+        loadReport('portfolio', newsLoading, newsContent, newsEmpty, refreshNewsBtn);
+    } else if (tabName === 'opportunities') {
+        loadReport('opportunities', opportunitiesLoading, opportunitiesContent, opportunitiesEmpty, refreshOpportunitiesBtn);
+    }
+}
+
 // Event Listeners
 refreshBtn.addEventListener('click', handleRefresh);
+
+refreshNewsBtn.addEventListener('click', () => {
+    handleRefreshReport('portfolio', newsLoading, newsContent, newsEmpty, refreshNewsBtn);
+});
+
+refreshOpportunitiesBtn.addEventListener('click', () => {
+    handleRefreshReport('opportunities', opportunitiesLoading, opportunitiesContent, opportunitiesEmpty, refreshOpportunitiesBtn);
+});
+
+tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
 
 // Initial load
 loadPortfolio();

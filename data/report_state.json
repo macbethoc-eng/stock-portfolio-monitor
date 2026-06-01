@@ -1,0 +1,33 @@
+{
+  "last_portfolio_report": "2026-06-01T17:42:38.310972Z",
+  "last_opportunity_report": "2026-06-01T17:42:39.630094Z",
+  "portfolio_news_sent": [
+    "6993a6f58bdc",
+    "81568f76ad68",
+    "21f1813396c8",
+    "7585c27f33a7",
+    "ae228793891f",
+    "6cdeba7e042f",
+    "a05ca3f774c3",
+    "caecd4d6cc20",
+    "7ad0e59d5fd6",
+    "5fb6800b6f89",
+    "8a354073f691",
+    "6150aa853db2",
+    "aeadb99932eb",
+    "4a45ca26e887",
+    "adf67287825c",
+    "ab81120e75df",
+    "f856e5d291d2",
+    "5711eccc1a17",
+    "16c626f0829d",
+    "79ad1bfb440f"
+  ],
+  "opportunity_news_sent": [
+    "earnings",
+    "IPO",
+    "oil",
+    "crypto",
+    "bitcoin"
+  ]
+}

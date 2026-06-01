@@ -98,3 +98,78 @@ def delete_transaction(transaction_id: str) -> dict[str, str]:
 def health_check() -> dict[str, str]:
     """Health check endpoint."""
     return {"status": "ok", "timestamp": get_utc_now()}
+
+
+# Report endpoints
+@router.get("/reports/portfolio")
+def get_portfolio_report() -> dict[str, Any]:
+    """Get the latest portfolio news report."""
+    from .report_state import get_report_state
+    state = get_report_state()
+    report = state.load_report("portfolio")
+    return {
+        "report": report or "No portfolio report generated yet.",
+        "last_generated": state.last_portfolio_report
+    }
+
+
+@router.get("/reports/opportunities")
+def get_opportunity_report() -> dict[str, Any]:
+    """Get the latest opportunity report."""
+    from .report_state import get_report_state
+    state = get_report_state()
+    report = state.load_report("opportunity")
+    return {
+        "report": report or "No opportunity report generated yet.",
+        "last_generated": state.last_opportunity_report
+    }
+
+
+@router.post("/reports/portfolio/generate")
+def generate_portfolio_report() -> dict[str, Any]:
+    """Generate a new portfolio report."""
+    from .report_generator import generate_portfolio_report as gen_report
+    from .emailer import send_portfolio_report
+    
+    result = gen_report()
+    send_portfolio_report(result['report'])
+    return result
+
+
+@router.post("/reports/opportunities/generate")
+def generate_opportunity_report() -> dict[str, Any]:
+    """Generate a new opportunity report."""
+    from .report_generator import generate_opportunity_report as gen_report
+    from .emailer import send_opportunity_report
+    
+    result = gen_report()
+    send_opportunity_report(result['report'])
+    return result
+
+
+@router.get("/news/stock/{symbol}")
+def get_stock_news(symbol: str) -> dict[str, Any]:
+    """Get news for a specific stock symbol."""
+    from .news_fetcher import fetch_stock_news
+    
+    news = fetch_stock_news([symbol], days=7)
+    return {
+        "symbol": symbol,
+        "news": news,
+        "count": len(news)
+    }
+
+
+@router.get("/news/market")
+def get_market_news() -> dict[str, Any]:
+    """Get general market news."""
+    from .news_fetcher import fetch_general_market_news, get_trending_topics
+    
+    news = fetch_general_market_news(limit=20)
+    trending = get_trending_topics()
+    return {
+        "news": news,
+        "trending": trending,
+        "news_count": len(news),
+        "trending_count": len(trending)
+    }
