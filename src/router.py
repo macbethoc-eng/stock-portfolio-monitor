@@ -2,7 +2,7 @@
 FastAPI router for portfolio API endpoints.
 """
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
@@ -43,7 +43,7 @@ def get_prices() -> dict[str, PriceData]:
 
 
 @router.post("/prices/refresh")
-def refresh_prices() -> dict[str, any]:
+def refresh_prices() -> dict[str, Any]:
     """Force refresh prices from Yahoo Finance."""
     try:
         cache = price_fetcher.refresh_prices()
