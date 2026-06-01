@@ -257,5 +257,5 @@ refreshBtn.addEventListener('click', handleRefresh);
 // Initial load
 loadPortfolio();
 
-// Auto-refresh every 5 minutes
-setInterval(loadPortfolio, 5 * 60 * 1000);
+// Auto-refresh every 10 minutes
+setInterval(loadPortfolio, 10 * 60 * 1000);
