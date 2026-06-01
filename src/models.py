@@ -21,7 +21,7 @@ class Transaction(BaseModel):
     symbol: str = Field(min_length=1, max_length=10)
     quantity: int = Field(ge=1)
     price: float = Field(gt=0)
-    transaction_date: DateType = Field(description="Date of the transaction")
+    transaction_date: DateType = Field(alias="date", description="Date of the transaction")
     action: Action = Field(description="Buy or sell")
 
     model_config = {
