@@ -1,10 +1,10 @@
 """
-Yahoo Finance price fetcher with caching.
+Yahoo Finance price fetcher using chart API (no auth required).
 """
 from datetime import datetime, timezone
 from typing import Optional
 
-import yfinance as yf
+import requests
 
 from .models import PriceData, PricesCacheFile
 from . import storage
@@ -17,30 +17,57 @@ def get_utc_now() -> str:
 
 def fetch_price(symbol: str) -> Optional[PriceData]:
     """
-    Fetch current price for a single symbol from Yahoo Finance.
+    Fetch current price for a single symbol from Yahoo Finance chart API.
     
-    Returns None if the fetch fails.
+    Uses the non-authenticated chart endpoint. Returns None if fetch fails.
     """
     try:
-        ticker = yf.Ticker(symbol)
-        info = ticker.info
+        url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
+        params = {
+            "interval": "1d",
+            "range": "2d",
+            "includePrePost": "false"
+        }
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+        }
         
-        current_price = info.get("currentPrice") or info.get("regularMarketPrice")
-        previous_close = info.get("previousClose")
+        response = requests.get(url, params=params, headers=headers, timeout=10)
+        response.raise_for_status()
+        
+        data = response.json()
+        result = data.get("chart", {}).get("result", [])
+        
+        if not result:
+            return None
+        
+        meta = result[0].get("meta", {})
+        current_price = meta.get("regularMarketPrice")
+        chart_previous_close = meta.get("chartPreviousClose")
+        market_time = meta.get("regularMarketTime")
         
         if current_price is None:
             return None
         
         change = None
         change_percent = None
-        if previous_close and previous_close > 0:
-            change = current_price - previous_close
-            change_percent = (change / previous_close) * 100
+        if chart_previous_close and chart_previous_close > 0:
+            change = current_price - chart_previous_close
+            change_percent = (change / chart_previous_close) * 100
+        
+        # Convert market time to ISO if available
+        timestamp = get_utc_now()
+        if market_time:
+            try:
+                ts_dt = datetime.fromtimestamp(market_time, tz=timezone.utc)
+                timestamp = ts_dt.isoformat().replace('+00:00', 'Z')
+            except Exception:
+                pass
         
         return PriceData(
             symbol=symbol,
             price=current_price,
-            timestamp=get_utc_now(),
+            timestamp=timestamp,
             change=change,
             change_percent=change_percent
         )
