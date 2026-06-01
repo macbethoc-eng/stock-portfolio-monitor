@@ -414,3 +414,5 @@ loadPortfolio();
 
 // Auto-refresh every 10 minutes
 setInterval(loadPortfolio, 10 * 60 * 1000);
+setInterval(() => loadReport('portfolio', newsLoading, newsContent, newsEmpty, refreshNewsBtn), 10 * 60 * 1000);
+setInterval(() => loadReport('opportunities', opportunitiesLoading, opportunitiesContent, opportunitiesEmpty, refreshOpportunitiesBtn), 10 * 60 * 1000);
