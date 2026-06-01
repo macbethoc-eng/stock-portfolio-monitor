@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Portfolio Monitor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📈 Portfolio Monitor</h1>
+            <div class="header-actions">
+                <button id="refresh-btn" class="btn btn-primary">
+                    <span class="btn-text">Refresh Prices</span>
+                    <span class="btn-loading" style="display: none;">Loading...</span>
+                </button>
+            </div>
+        </header>
+
+        <div id="error-banner" class="error-banner" style="display: none;">
+            <span id="error-message"></span>
+            <button class="close-btn" onclick="closeErrorBanner()">×</button>
+        </div>
+
+        <div id="stale-warning" class="stale-warning" style="display: none;">
+            ⚠️ Prices may be stale. Click Refresh to update.
+        </div>
+
+        <section class="summary-section">
+            <div class="summary-card total-value">
+                <span class="label">Total Value</span>
+                <span class="value" id="total-value">—</span>
+            </div>
+            <div class="summary-card">
+                <span class="label">Cost Basis</span>
+                <span class="value" id="cost-basis">—</span>
+            </div>
+            <div class="summary-card" id="today-card">
+                <span class="label">Today's Gain/Loss</span>
+                <span class="value" id="today-gain">—</span>
+                <span class="sub-value" id="today-gain-pct">—</span>
+            </div>
+            <div class="summary-card" id="total-gain-card">
+                <span class="label">Total Gain/Loss</span>
+                <span class="value" id="total-gain">—</span>
+                <span class="sub-value" id="total-gain-pct">—</span>
+            </div>
+            <div class="summary-card">
+                <span class="label">Last Updated</span>
+                <span class="value small" id="last-updated">—</span>
+            </div>
+        </section>
+
+        <section class="positions-section">
+            <h2>Positions</h2>
+            <div id="loading" class="loading">
+                <div class="skeleton-row"></div>
+                <div class="skeleton-row"></div>
+                <div class="skeleton-row"></div>
+            </div>
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <p>No positions found.</p>
+                <p class="hint">Add transactions to data/transactions.json to get started.</p>
+            </div>
+            <table id="positions-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th class="num">Qty</th>
+                        <th class="num">Cost Basis</th>
+                        <th class="num">Last Price</th>
+                        <th class="num">Current Value</th>
+                        <th class="num">Today</th>
+                        <th class="num">Total</th>
+                        <th class="num">% of Account</th>
+                    </tr>
+                </thead>
+                <tbody id="positions-body">
+                </tbody>
+            </table>
+        </section>
+
+        <section class="legend">
+            <h3>Help</h3>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <span class="legend-term">Qty</span>
+                    <span class="legend-def">Number of shares held</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-term">Cost Basis</span>
+                    <span class="legend-def">Total amount paid for shares (FIFO)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-term">Current Value</span>
+                    <span class="legend-def">Qty × Last Price</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-term">Today</span>
+                    <span class="legend-def">Gain/loss today ($ and %)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-term">Total</span>
+                    <span class="legend-def">Overall gain/loss from cost basis ($ and %)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-term">% of Account</span>
+                    <span class="legend-def">Position weight in portfolio</span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

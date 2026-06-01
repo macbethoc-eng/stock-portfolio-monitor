@@ -1,0 +1,52 @@
+{
+  "transactions": [
+    {
+      "id": "template-bbd-001",
+      "symbol": "BBD",
+      "quantity": 100,
+      "price": 12.50,
+      "date": "2024-01-15",
+      "action": "buy"
+    },
+    {
+      "id": "template-dbx-001",
+      "symbol": "DBX",
+      "quantity": 50,
+      "price": 25.00,
+      "date": "2024-02-01",
+      "action": "buy"
+    },
+    {
+      "id": "template-snap-001",
+      "symbol": "SNAP",
+      "quantity": 200,
+      "price": 15.00,
+      "date": "2024-01-20",
+      "action": "buy"
+    },
+    {
+      "id": "template-t-001",
+      "symbol": "T",
+      "quantity": 150,
+      "price": 17.50,
+      "date": "2024-03-01",
+      "action": "buy"
+    },
+    {
+      "id": "template-vz-001",
+      "symbol": "VZ",
+      "quantity": 100,
+      "price": 40.00,
+      "date": "2024-02-15",
+      "action": "buy"
+    },
+    {
+      "id": "template-wse-001",
+      "symbol": "WSE",
+      "quantity": 25,
+      "price": 320.00,
+      "date": "2024-04-01",
+      "action": "buy"
+    }
+  ]
+}
