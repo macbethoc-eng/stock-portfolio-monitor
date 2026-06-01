@@ -56,7 +56,13 @@ class PositionState:
         Remove shares via a sell transaction using FIFO.
         
         Returns (proceeds, cost_basis_removed).
+        Raises ValueError if quantity exceeds available shares.
         """
+        if quantity > self.total_shares:
+            raise ValueError(
+                f"Cannot sell {quantity} shares, only {self.total_shares} available"
+            )
+        
         proceeds = 0.0
         cost_basis_removed = 0.0
         remaining = quantity

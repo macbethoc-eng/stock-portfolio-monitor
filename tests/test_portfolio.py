@@ -121,6 +121,26 @@ class TestPositionState:
         assert state.total_cost == 2500.00
         assert state.avg_cost == 2500.00 / 150
 
+    def test_sell_exceeding_shares_raises_error(self):
+        """Test that selling more shares than available raises ValueError."""
+        state = PositionState()
+        state.add_buy(100, 10.00)
+        
+        with pytest.raises(ValueError, match="Cannot sell 150 shares, only 100 available"):
+            state.remove_shares(150)
+
+    def test_sell_exactly_all_shares(self):
+        """Test selling exactly all available shares."""
+        state = PositionState()
+        state.add_buy(100, 10.00)
+        
+        proceeds, cost_basis = state.remove_shares(100)
+        
+        assert proceeds == 1000.00
+        assert cost_basis == 1000.00
+        assert state.total_shares == 0
+        assert state.lots == []
+
 
 class TestComputePositions:
     """Tests for compute_positions function."""

@@ -116,22 +116,47 @@ function updatePositions(positions) {
         const todayClass = pos.today_gain >= 0 ? 'positive-cell' : 'negative-cell';
         const totalClass = pos.total_gain >= 0 ? 'positive-cell' : 'negative-cell';
 
-        row.innerHTML = `
-            <td class="symbol-cell">${pos.symbol}</td>
-            <td class="num">${pos.quantity}</td>
-            <td class="num">${formatCurrency(pos.cost_basis)}</td>
-            <td class="num">${formatCurrency(pos.current_price)}</td>
-            <td class="num">${formatCurrency(pos.current_value)}</td>
-            <td class="num ${todayClass}">
-                ${formatCurrency(pos.today_gain)}<br>
-                <span class="small">${formatPercent(pos.today_gain_percent)}</span>
-            </td>
-            <td class="num ${totalClass}">
-                ${formatCurrency(pos.total_gain)}<br>
-                <span class="small">${formatPercent(pos.total_gain_percent)}</span>
-            </td>
-            <td class="num">${formatPercent(pos.percent_of_account)}</td>
-        `;
+        // Use textContent for user-controlled data to prevent XSS
+        const symbolCell = document.createElement('td');
+        symbolCell.className = 'symbol-cell';
+        symbolCell.textContent = pos.symbol;
+
+        const qtyCell = document.createElement('td');
+        qtyCell.className = 'num';
+        qtyCell.textContent = pos.quantity;
+
+        const costBasisCell = document.createElement('td');
+        costBasisCell.className = 'num';
+        costBasisCell.textContent = formatCurrency(pos.cost_basis);
+
+        const priceCell = document.createElement('td');
+        priceCell.className = 'num';
+        priceCell.textContent = formatCurrency(pos.current_price);
+
+        const valueCell = document.createElement('td');
+        valueCell.className = 'num';
+        valueCell.textContent = formatCurrency(pos.current_value);
+
+        const todayCell = document.createElement('td');
+        todayCell.className = `num ${todayClass}`;
+        todayCell.innerHTML = `${formatCurrency(pos.today_gain)}<br><span class="small">${formatPercent(pos.today_gain_percent)}</span>`;
+
+        const totalCell = document.createElement('td');
+        totalCell.className = `num ${totalClass}`;
+        totalCell.innerHTML = `${formatCurrency(pos.total_gain)}<br><span class="small">${formatPercent(pos.total_gain_percent)}</span>`;
+
+        const pctCell = document.createElement('td');
+        pctCell.className = 'num';
+        pctCell.textContent = formatPercent(pos.percent_of_account);
+
+        row.appendChild(symbolCell);
+        row.appendChild(qtyCell);
+        row.appendChild(costBasisCell);
+        row.appendChild(priceCell);
+        row.appendChild(valueCell);
+        row.appendChild(todayCell);
+        row.appendChild(totalCell);
+        row.appendChild(pctCell);
 
         positionsBody.appendChild(row);
     }

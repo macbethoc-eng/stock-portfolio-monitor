@@ -1,9 +1,9 @@
 """
 FastAPI router for portfolio API endpoints.
 """
-from datetime import datetime
-from typing import Any, Optional
-from uuid import UUID
+import logging
+from datetime import datetime, timezone
+from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
@@ -19,6 +19,11 @@ from . import portfolio as portfolio_calc
 
 
 router = APIRouter(prefix="/api")
+
+
+def get_utc_now() -> str:
+    """Return current UTC time as ISO string."""
+    return datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
 
 
 @router.get("/portfolio", response_model=PortfolioSummary)
@@ -53,7 +58,8 @@ def refresh_prices() -> dict[str, Any]:
             "last_fetch": cache.last_fetch
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.error(f"Price refresh failed: {e}")
+        raise HTTPException(status_code=500, detail="Price refresh failed. Check logs for details.")
 
 
 @router.get("/transactions")
@@ -91,4 +97,4 @@ def delete_transaction(transaction_id: str) -> dict[str, str]:
 @router.get("/health")
 def health_check() -> dict[str, str]:
     """Health check endpoint."""
-    return {"status": "ok", "timestamp": datetime.utcnow().isoformat() + "Z"}
+    return {"status": "ok", "timestamp": get_utc_now()}
