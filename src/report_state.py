@@ -108,11 +108,16 @@ def get_report_state() -> ReportState:
 def days_since_transaction(transaction_date: str) -> int:
     """Calculate days since a transaction date."""
     try:
-        txn_date = datetime.fromisoformat(transaction_date.replace('Z', '+00:00'))
+        txn_date_str = transaction_date.replace('Z', '+00:00')
+        # Parse as naive first, then make it timezone-aware
+        txn_date = datetime.fromisoformat(txn_date_str)
+        if txn_date.tzinfo is None:
+            txn_date = txn_date.replace(tzinfo=timezone.utc)
         now = datetime.now(timezone.utc)
         delta = now - txn_date
         return delta.days
-    except (ValueError, TypeError):
+    except (ValueError, TypeError) as e:
+        print(f"Error parsing date '{transaction_date}': {e}")
         return 999  # Assume very old if can't parse
 
 
